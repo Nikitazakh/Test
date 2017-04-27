@@ -1,0 +1,72 @@
+__author__ = 'student'
+class Tape:
+
+    def __init__(self, tape_string = '_', blank_symbol = '_'):
+        self.__tape = dict(enumerate(tape_string))
+        self.blank_symbol = blank_symbol
+
+    def __getitem__(self, item): #возвращает значение по индексу
+        if item in self.__tape:
+            return self.__tape[item]
+        else:
+            return self.blank_symbol
+
+    def __setitem__(self, key, value):#присваивает на позицию
+        self.__tape[key] = value
+
+
+
+    def __str__(self):#возращает tape как строку
+        s = ''
+        a = min(self.__tape.keys())
+        b = max(self.__tape.keys())
+        for i in range(a, b+1):
+            if i not in self.__tape.keys():
+                s += self.blank_symbol
+            else:
+                s += self.__tape[i]
+        return s
+
+
+class TuringMachine(object):
+
+    def __init__(self,
+                 tape,
+                 d_function,
+                 final_states,
+                 initial_state=0,
+                 blank_symbol='_'):
+
+        self.__tape = Tape(tape)
+        self.__d_function = d_function
+        self.__final_states = final_states
+        self.__current_state = initial_state
+        self.__blank_symbol = blank_symbol
+        self.__head_position = 0
+
+    def get_tape(self):
+        return str(self.__tape)
+
+    def step(self):
+        elem_head = self.__tape[self.__head_position]
+        a = (self.__current_state, elem_head)
+        b = self.__d_function[a]
+        self.__tape[self.__head_position] = b[1]
+        if b[2] == 'R':
+            self.__head_position += 1
+        elif b[2] == 'L':
+            self.__head_position -= 1
+        self.__current_state = b[0]
+
+    def final(self):
+        if self.__current_state in self.__final_states:
+            return True
+        else:
+            return False
+
+
+d_function = {(0, '0'):(0, '0', 'R'), (0, '1'):(0, '1', 'R'), (0, '_'):(1, '0','N')}
+TM = TuringMachine('10010101',d_function, set([1]))
+while not TM.final():
+    TM.step()
+print(TM.get_tape())
